@@ -1,0 +1,127 @@
+# n8n Helm Chart Values
+# This file contains the default values for n8n deployment
+
+# n8n Configuration
+n8n:
+  image:
+    repository: n8nio/n8n
+    tag: latest
+  
+  # Basic n8n settings
+  generic:
+    timezone: Europe/Madrid
+    
+  # Authentication
+  auth:
+    # Using JWT authentication (default)
+    jwt:
+      headerAuthEnabled: false
+    # Uncomment below for basic auth alternative
+    # basic:
+    #   enabled: true
+    #   user: admin
+    #   password: changeme
+
+# Service Configuration
+service:
+  type: ClusterIP
+  ports:
+    http: 5678
+
+# Ingress Configuration (optional - uncomment to enable)
+# ingress:
+#   enabled: true
+#   className: nginx
+#   annotations:
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+#   hosts:
+#     - host: n8n.example.com
+#       paths:
+#         - path: /
+#           pathType: Prefix
+#   tls: []
+#     - secretName: n8n-tls
+#       hosts:
+#         - n8n.example.com
+
+# Resource Configuration
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+# Database Configuration
+# These settings are overridden by deploy.sh at runtime
+database:
+  type: postgresdb
+  # postgresdb:
+  #   host: ""
+  #   port: 5432
+  #   user: postgres
+  #   password: ""
+  #   database: postgres
+
+# Persistence for workflows and data
+persistence:
+  enabled: true
+  size: 5Gi
+  storageClass: ""  # Use default storage class
+  accessMode: ReadWriteOnce
+
+# Environment variables
+env:
+  - name: N8N_BASIC_AUTH_ACTIVE
+    value: "false"
+  - name: N8N_HOST
+    value: "localhost"
+  - name: N8N_PORT
+    value: "5678"
+  - name: N8N_PROTOCOL
+    value: "http"
+  - name: WEBHOOK_URL
+    value: "http://localhost:5678/"
+  - name: N8N_LOG_LEVEL
+    value: "info"
+  - name: N8N_METRICS
+    value: "true"
+
+# Additional environment variables (secrets, etc.)
+# additionalEnv:
+#   - name: SOME_SECRET
+#     valueFrom:
+#       secretKeyRef:
+#         name: n8n-secrets
+#         key: some-secret
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+# Node selector
+nodeSelector: {}
+# Example:
+#   kubernetes.io/os: linux
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Additional annotations for pods
+podAnnotations: {}
+
+# Additional labels for pods
+podLabels: {}
